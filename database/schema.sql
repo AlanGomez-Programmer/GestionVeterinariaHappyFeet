@@ -106,32 +106,11 @@ CREATE TABLE alergias (
 );
 
 -- SEGURIDAD: USUARIOS, ROLES Y MÓDULOS
-CREATE TABLE modulos (
-    id INT AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL UNIQUE,
-    descripcion TEXT,
-    activo BOOLEAN DEFAULT TRUE,
-    PRIMARY KEY (id)
-);
-
 CREATE TABLE tipos_usuarios (
     id INT AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL UNIQUE,
     descripcion TEXT,
     PRIMARY KEY (id)
-);
-
-CREATE TABLE rol_modulo (
-    id INT AUTO_INCREMENT,
-    tipo_usuario_id INT NOT NULL,
-    modulo_id INT NOT NULL,
-    puede_modificar BOOLEAN NOT NULL DEFAULT FALSE,
-    PRIMARY KEY (id),
-    UNIQUE KEY uk_rol_modulo (tipo_usuario_id, modulo_id),
-    CONSTRAINT fk_rol_modulo_tipo_usuario
-        FOREIGN KEY (tipo_usuario_id) REFERENCES tipos_usuarios(id) ON DELETE CASCADE,
-    CONSTRAINT fk_rol_modulo_modulo
-        FOREIGN KEY (modulo_id) REFERENCES modulos(id) ON DELETE CASCADE
 );
 
 CREATE TABLE usuarios (
