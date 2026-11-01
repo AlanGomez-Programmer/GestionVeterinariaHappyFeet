@@ -109,4 +109,5 @@ $RECYCLE.BIN/
 diagrama.mwb
 diagrama.mwb.bak
 
+db.properties
 # End of https://www.toptal.com/developers/gitignore/api/maven,java,netbeans,windows,visualstudiocode
