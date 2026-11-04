@@ -36,6 +36,17 @@ public abstract class ControladorBase {
                 .collect(Collectors.toMap(id, nombre, (primero, segundo) -> primero, LinkedHashMap::new));
     }
 
+    // Pide varios productos con su cantidad. Si eligen el mismo producto dos veces, se suman
+    protected Map<Integer, Integer> pedirProductosYCantidades(String titulo, Map<Integer, String> productos){
+        Map<Integer, Integer> elegidos = new LinkedHashMap<>();
+        do {
+            int productoId = elegir(titulo, productos);
+            int cantidad = vista.pedirCantidad("Cantidad usada");
+            elegidos.merge(productoId, cantidad, Integer::sum);
+        } while (vista.confirmar("¿Desea agregar otro producto?"));
+        return elegidos;
+    }
+
     protected void manejarErrorBaseDatos(String lugar, SQLException e){
         RegistroErrores.registrar(lugar, e);
         vista.mostrarError("Ocurrió un problema con la base de datos. Revise el archivo errores.log");

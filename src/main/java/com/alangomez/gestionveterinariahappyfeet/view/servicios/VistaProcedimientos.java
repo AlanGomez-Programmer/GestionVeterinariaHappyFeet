@@ -24,9 +24,10 @@ public class VistaProcedimientos extends VistaBase {
                 3. Listar Procedimientos
                 4. Ver detalle de un Procedimiento
                 5. Cambiar estado de un Procedimiento
+                6. Registrar insumos usados
                 0. Regresar
             """);
-        return EntradaConsola.ingresarEnteroEnRango("Ingrese una opción", 0, 5);
+        return EntradaConsola.ingresarEnteroEnRango("Ingrese una opción", 0, 6);
     }
 
     public int pedirId(String accion){

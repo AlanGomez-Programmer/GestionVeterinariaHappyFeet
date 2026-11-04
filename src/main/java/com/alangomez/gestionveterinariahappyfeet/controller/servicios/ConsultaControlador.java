@@ -1,6 +1,8 @@
 package com.alangomez.gestionveterinariahappyfeet.controller.servicios;
 
 import com.alangomez.gestionveterinariahappyfeet.controller.ControladorBase;
+import com.alangomez.gestionveterinariahappyfeet.model.entities.inventario.Medicamento;
+import com.alangomez.gestionveterinariahappyfeet.model.entities.inventario.Producto;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.pacientes.mascota.Mascota;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.CatalogoProcedimiento;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.Cita;
@@ -8,6 +10,8 @@ import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.Prescr
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.Servicio;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.Veterinario;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.consulta.Consulta;
+import com.alangomez.gestionveterinariahappyfeet.service.inventario.InventarioService;
+import com.alangomez.gestionveterinariahappyfeet.service.inventario.ProductoService;
 import com.alangomez.gestionveterinariahappyfeet.service.pacientes.MascotaService;
 import com.alangomez.gestionveterinariahappyfeet.service.servicios.CatalogoServiciosService;
 import com.alangomez.gestionveterinariahappyfeet.service.servicios.CitaService;
@@ -27,10 +31,13 @@ public class ConsultaControlador extends ControladorBase {
     private final MascotaService mascotaService;
     private final VeterinarioService veterinarioService;
     private final CatalogoServiciosService catalogoService;
+    private final ProductoService productoService;
+    private final InventarioService inventarioService;
 
     public ConsultaControlador(VistaConsultas vista, ConsultaService consultaService, CitaService citaService,
             MascotaService mascotaService, VeterinarioService veterinarioService,
-            CatalogoServiciosService catalogoService) {
+            CatalogoServiciosService catalogoService, ProductoService productoService,
+            InventarioService inventarioService) {
         super(vista);
         this.vista = vista;
         this.consultaService = consultaService;
@@ -38,6 +45,8 @@ public class ConsultaControlador extends ControladorBase {
         this.mascotaService = mascotaService;
         this.veterinarioService = veterinarioService;
         this.catalogoService = catalogoService;
+        this.productoService = productoService;
+        this.inventarioService = inventarioService;
     }
 
     public void iniciar() {
@@ -51,6 +60,8 @@ public class ConsultaControlador extends ControladorBase {
                     case 3 -> listarPorMascota();
                     case 4 -> verDetalle();
                     case 5 -> prescribirProcedimiento();
+                    case 6 -> registrarInsumos();
+                    case 7 -> prescribirMedicamento();
                     default -> { }
                 }
             } catch (IllegalArgumentException e) {
@@ -119,5 +130,36 @@ public class ConsultaControlador extends ControladorBase {
         consultaService.prescribirProcedimiento(
                 new PrescripcionProcedimiento(consulta.getId(), catalogoId, vista.pedirIndicaciones()));
         vista.mostrarMensaje("Procedimiento prescrito correctamente");
+    }
+
+    private void registrarInsumos() throws SQLException {
+        Consulta consulta = consultaService.buscarPorId(vista.pedirId("registrar insumos"));
+        Map<Integer, Integer> insumos = pedirProductosYCantidades("Productos", productosConStock());
+        consultaService.registrarInsumos(consulta.getId(), insumos);
+        vista.mostrarMensaje("Insumos registrados y descontados del inventario");
+    }
+
+    private void prescribirMedicamento() throws SQLException {
+        Consulta consulta = consultaService.buscarPorId(vista.pedirId("prescribir un medicamento"));
+        Map<Integer, String> productos = productosConStock();
+        List<Medicamento> medicamentos = productoService.listarMedicamentos().stream()
+                .filter(m -> productos.containsKey(m.getProductoId()))
+                .toList();
+        int medicamentoId = elegir("Medicamentos", aMapa(medicamentos, Medicamento::getId,
+                m -> productos.get(m.getProductoId()) + " - " + m.getConcentracion()));
+        int productoId = medicamentos.stream()
+                .filter(m -> m.getId() == medicamentoId)
+                .map(Medicamento::getProductoId)
+                .findFirst()
+                .orElseThrow();
+
+        consultaService.prescribirMedicamento(vista.pedirDatosPrescripcion(consulta.getId(), medicamentoId), productoId);
+        vista.mostrarMensaje("Medicamento prescrito y descontado del inventario");
+    }
+
+    private Map<Integer, String> productosConStock() throws SQLException {
+        Map<Integer, Integer> stock = inventarioService.stockDisponiblePorProducto();
+        return aMapa(productoService.listarActivos(), Producto::getId,
+                p -> p.getNombre() + " (disponible: " + stock.getOrDefault(p.getId(), 0) + ")");
     }
 }

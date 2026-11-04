@@ -1,6 +1,7 @@
 package com.alangomez.gestionveterinariahappyfeet.view.servicios;
 
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.HistorialServicio;
+import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.PrescripcionMedicamento;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.consulta.Consulta;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.consulta.ConsultaBuilderImpl;
 import com.alangomez.gestionveterinariahappyfeet.util.EntradaConsola;
@@ -25,9 +26,11 @@ public class VistaConsultas extends VistaBase {
                 3. Ver consultas de una Mascota
                 4. Ver detalle de una Consulta
                 5. Prescribir Procedimiento especial
+                6. Registrar insumos usados en una Consulta
+                7. Prescribir Medicamento
                 0. Regresar
             """);
-        return EntradaConsola.ingresarEnteroEnRango("Ingrese una opción", 0, 5);
+        return EntradaConsola.ingresarEnteroEnRango("Ingrese una opción", 0, 7);
     }
 
     public Consulta pedirDatosConsulta(int mascotaId, int veterinarioId, Integer citaId){
@@ -62,6 +65,18 @@ public class VistaConsultas extends VistaBase {
                .pesoRegistrado(peso)
                .temperatura(temperatura)
                .build();
+    }
+
+    public PrescripcionMedicamento pedirDatosPrescripcion(int consultaId, int medicamentoId){
+        int cantidad = EntradaConsola.ingresarEntero("Cantidad a entregar");
+        String dosis = EntradaConsola.ingresarTexto(TipoTexto.ALFANUMERICO, "Dosis (por ejemplo 1 tableta)");
+        String frecuencia = EntradaConsola.ingresarTexto(TipoTexto.ALFANUMERICO, "Frecuencia (por ejemplo cada 8 horas)");
+        Integer duracionDias = null;
+        if (EntradaConsola.confirmar("¿Desea indicar la duración del tratamiento?")){
+            duracionDias = EntradaConsola.ingresarEnteroEnRango("Duración en días", 1, 365);
+        }
+        String instrucciones = pedirTextoOpcional("¿Desea agregar instrucciones?", "Instrucciones");
+        return new PrescripcionMedicamento(consultaId, medicamentoId, cantidad, dosis, frecuencia, duracionDias, instrucciones);
     }
 
     public boolean deseaAgregarOtroServicio(){

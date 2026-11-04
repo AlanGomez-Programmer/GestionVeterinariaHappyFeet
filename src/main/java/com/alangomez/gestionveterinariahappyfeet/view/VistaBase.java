@@ -36,6 +36,14 @@ public abstract class VistaBase {
         }
     }
 
+    public int pedirCantidad(String mensaje){
+        return EntradaConsola.ingresarEntero(mensaje);
+    }
+
+    public boolean confirmar(String pregunta){
+        return EntradaConsola.confirmar(pregunta);
+    }
+
     public void mostrarMensaje(String mensaje){
         System.out.println(mensaje);
     }

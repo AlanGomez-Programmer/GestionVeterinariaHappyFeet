@@ -5,10 +5,12 @@ import com.alangomez.gestionveterinariahappyfeet.model.dao.servicios.CatalogoPro
 import com.alangomez.gestionveterinariahappyfeet.model.dao.servicios.ConsultaDAO;
 import com.alangomez.gestionveterinariahappyfeet.model.dao.servicios.EstadoDAO;
 import com.alangomez.gestionveterinariahappyfeet.model.dao.servicios.HistorialServicioDAO;
+import com.alangomez.gestionveterinariahappyfeet.model.dao.servicios.InsumoDAO;
 import com.alangomez.gestionveterinariahappyfeet.model.dao.servicios.PrescripcionProcedimientoDAO;
 import com.alangomez.gestionveterinariahappyfeet.model.dao.servicios.ProcedimientoEspecialDAO;
 import com.alangomez.gestionveterinariahappyfeet.model.dao.servicios.ServicioDAO;
 import com.alangomez.gestionveterinariahappyfeet.model.dao.servicios.VeterinarioDAO;
+import com.alangomez.gestionveterinariahappyfeet.model.entities.inventario.ConsumoLote;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.pacientes.mascota.Mascota;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.CatalogoProcedimiento;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.Estado;
@@ -18,6 +20,8 @@ import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.Proced
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.Servicio;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.Veterinario;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.consulta.Consulta;
+import com.alangomez.gestionveterinariahappyfeet.service.inventario.InventarioService;
+import com.alangomez.gestionveterinariahappyfeet.service.inventario.ProductoService;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -52,10 +56,14 @@ public class ProcedimientoService {
     private final HistorialServicioDAO historialServicioDAO;
     private final MascotaDAO mascotaDAO;
     private final VeterinarioDAO veterinarioDAO;
+    private final InsumoDAO insumoDAO;
+    private final InventarioService inventarioService;
+    private final ProductoService productoService;
 
     public ProcedimientoService(ProcedimientoEspecialDAO procedimientoDAO, PrescripcionProcedimientoDAO prescripcionDAO,
             ConsultaDAO consultaDAO, CatalogoProcedimientoDAO catalogoDAO, ServicioDAO servicioDAO, EstadoDAO estadoDAO,
-            HistorialServicioDAO historialServicioDAO, MascotaDAO mascotaDAO, VeterinarioDAO veterinarioDAO) {
+            HistorialServicioDAO historialServicioDAO, MascotaDAO mascotaDAO, VeterinarioDAO veterinarioDAO,
+            InsumoDAO insumoDAO, InventarioService inventarioService, ProductoService productoService) {
         this.procedimientoDAO = procedimientoDAO;
         this.prescripcionDAO = prescripcionDAO;
         this.consultaDAO = consultaDAO;
@@ -65,6 +73,9 @@ public class ProcedimientoService {
         this.historialServicioDAO = historialServicioDAO;
         this.mascotaDAO = mascotaDAO;
         this.veterinarioDAO = veterinarioDAO;
+        this.insumoDAO = insumoDAO;
+        this.inventarioService = inventarioService;
+        this.productoService = productoService;
     }
 
     public void programar(ProcedimientoEspecial procedimiento) throws SQLException {
@@ -175,6 +186,39 @@ public class ProcedimientoService {
             con.setAutoCommit(true);
             con.close();
         }
+    }
+
+    // Registra los insumos usados en el procedimiento y los descuenta del inventario
+    public void registrarInsumos(int procedimientoId, Map<Integer, Integer> productosYCantidades) throws SQLException {
+        ProcedimientoEspecial procedimiento = buscarPorId(procedimientoId);
+        String estado = nombreEstado(procedimiento.getEstadoId());
+        if (!estado.equals(PREOPERATORIO) && !estado.equals(EN_PROCESO) && !estado.equals(POSTOPERATORIO)) {
+            throw new IllegalArgumentException("Solo se registran insumos en preoperatorio, en proceso o postoperatorio. "
+                    + "Este procedimiento está " + estado);
+        }
+        for (int productoId : productosYCantidades.keySet()) {
+            productoService.buscarActivoPorId(productoId);
+        }
+
+        Connection con = procedimientoDAO.obtenerConexion();
+        try {
+            con.setAutoCommit(false);
+            for (Map.Entry<Integer, Integer> insumo : productosYCantidades.entrySet()) {
+                List<ConsumoLote> consumos = inventarioService.descontar(con, insumo.getKey(), insumo.getValue(),
+                        "Insumo usado en el procedimiento #" + procedimientoId, null, procedimientoId);
+                for (ConsumoLote consumo : consumos) {
+                    insumoDAO.agregarInsumoProcedimiento(con, procedimientoId, consumo.inventarioId(), consumo.cantidad());
+                }
+            }
+            con.commit();
+        } catch (SQLException | IllegalArgumentException e) {
+            con.rollback();
+            throw e;
+        } finally {
+            con.setAutoCommit(true);
+            con.close();
+        }
+        inventarioService.revisarStockBajo(productosYCantidades.keySet());
     }
 
     private void validarDatosDelEstado(ProcedimientoEspecial procedimiento, String nuevoEstado) {

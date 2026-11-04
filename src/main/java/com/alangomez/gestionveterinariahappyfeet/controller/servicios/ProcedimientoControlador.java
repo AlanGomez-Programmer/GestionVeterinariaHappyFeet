@@ -1,6 +1,7 @@
 package com.alangomez.gestionveterinariahappyfeet.controller.servicios;
 
 import com.alangomez.gestionveterinariahappyfeet.controller.ControladorBase;
+import com.alangomez.gestionveterinariahappyfeet.model.entities.inventario.Producto;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.pacientes.mascota.Mascota;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.CatalogoProcedimiento;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.Estado;
@@ -8,6 +9,8 @@ import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.Prescr
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.ProcedimientoEspecial;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.Servicio;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.Veterinario;
+import com.alangomez.gestionveterinariahappyfeet.service.inventario.InventarioService;
+import com.alangomez.gestionveterinariahappyfeet.service.inventario.ProductoService;
 import com.alangomez.gestionveterinariahappyfeet.service.pacientes.MascotaService;
 import com.alangomez.gestionveterinariahappyfeet.service.servicios.CatalogoServiciosService;
 import com.alangomez.gestionveterinariahappyfeet.service.servicios.ProcedimientoService;
@@ -25,16 +28,21 @@ public class ProcedimientoControlador extends ControladorBase {
     private final MascotaService mascotaService;
     private final VeterinarioService veterinarioService;
     private final CatalogoServiciosService catalogoService;
+    private final ProductoService productoService;
+    private final InventarioService inventarioService;
 
     public ProcedimientoControlador(VistaProcedimientos vista, ProcedimientoService procedimientoService,
             MascotaService mascotaService, VeterinarioService veterinarioService,
-            CatalogoServiciosService catalogoService) {
+            CatalogoServiciosService catalogoService, ProductoService productoService,
+            InventarioService inventarioService) {
         super(vista);
         this.vista = vista;
         this.procedimientoService = procedimientoService;
         this.mascotaService = mascotaService;
         this.veterinarioService = veterinarioService;
         this.catalogoService = catalogoService;
+        this.productoService = productoService;
+        this.inventarioService = inventarioService;
     }
 
     public void iniciar() {
@@ -48,6 +56,7 @@ public class ProcedimientoControlador extends ControladorBase {
                     case 3 -> listar();
                     case 4 -> verDetalle();
                     case 5 -> cambiarEstado();
+                    case 6 -> registrarInsumos();
                     default -> { }
                 }
             } catch (IllegalArgumentException e) {
@@ -133,5 +142,14 @@ public class ProcedimientoControlador extends ControladorBase {
         Map<Integer, String> servicios = aMapa(catalogoService.listarServicios(), Servicio::getId, Servicio::getNombre);
         return aMapa(catalogoService.listarCatalogoProcedimientos(), CatalogoProcedimiento::getId,
                 c -> servicios.getOrDefault(c.getServicioId(), "-"));
+    }
+
+    private void registrarInsumos() throws SQLException {
+        ProcedimientoEspecial procedimiento = procedimientoService.buscarPorId(vista.pedirId("registrar insumos"));
+        Map<Integer, Integer> stock = inventarioService.stockDisponiblePorProducto();
+        Map<Integer, String> productos = aMapa(productoService.listarActivos(), Producto::getId,
+                p -> p.getNombre() + " (disponible: " + stock.getOrDefault(p.getId(), 0) + ")");
+        procedimientoService.registrarInsumos(procedimiento.getId(), pedirProductosYCantidades("Productos", productos));
+        vista.mostrarMensaje("Insumos registrados y descontados del inventario");
     }
 }
