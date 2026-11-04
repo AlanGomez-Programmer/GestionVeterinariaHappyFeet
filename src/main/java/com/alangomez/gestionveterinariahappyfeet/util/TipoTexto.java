@@ -17,6 +17,16 @@ public enum TipoTexto {
     CORREO(
             "^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$",
             "El correo debe tener el formato usuario@dominio.com"
+    ),
+    // Solo para permitir Documentos
+    DOCUMENTO_PERSONAL(
+            "\\d+",
+            "Solo se permiten numeros"
+    ),
+    // Formato de enlace web: http://... o https://...
+    URL(
+            "^https?://\\S+$",
+            "La URL debe iniciar con http:// o https:// y no tener espacios"
     );
  
     private final Pattern patron;
