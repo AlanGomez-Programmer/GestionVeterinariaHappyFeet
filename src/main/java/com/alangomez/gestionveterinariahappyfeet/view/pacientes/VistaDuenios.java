@@ -1,11 +1,12 @@
-package com.alangomez.gestionveterinariahappyfeet.view;
+package com.alangomez.gestionveterinariahappyfeet.view.pacientes;
 
 import com.alangomez.gestionveterinariahappyfeet.model.entities.pacientes.Duenio;
 import com.alangomez.gestionveterinariahappyfeet.util.EntradaConsola;
+import com.alangomez.gestionveterinariahappyfeet.view.VistaBase;
 import com.alangomez.gestionveterinariahappyfeet.util.TipoTexto;
 import java.util.List;
 
-public class VistaDuenios {
+public class VistaDuenios extends VistaBase {
 
     private static final String FORMATO_FILA = "    %-5s %-30s %-15s %-30s %-15s%n";
 
@@ -68,11 +69,5 @@ public class VistaDuenios {
         mostrarDuenios(List.of(duenio));
     }
 
-    public void mostrarMensaje(String mensaje) {
-        System.out.println(mensaje);
-    }
 
-    public void mostrarError(String mensaje) {
-        System.out.println("Error: " + mensaje);
-    }
 }

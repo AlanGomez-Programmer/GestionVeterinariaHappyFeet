@@ -210,3 +210,5 @@ INSERT INTO estados_canjes_beneficios (nombre) VALUES
 	('Pendiente'),
 	('Aplicado'),
 	('Expirado');
+
+INSERT INTO estados_citas (nombre, descripcion) VALUES ('Cancelada', 'La cita fue cancelada');

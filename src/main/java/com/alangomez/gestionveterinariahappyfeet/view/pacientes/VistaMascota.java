@@ -1,4 +1,4 @@
-package com.alangomez.gestionveterinariahappyfeet.view;
+package com.alangomez.gestionveterinariahappyfeet.view.pacientes;
 
 import com.alangomez.gestionveterinariahappyfeet.model.entities.pacientes.Alergia;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.pacientes.HistorialDuenio;
@@ -7,19 +7,16 @@ import com.alangomez.gestionveterinariahappyfeet.model.entities.pacientes.Vacuna
 import com.alangomez.gestionveterinariahappyfeet.model.entities.pacientes.mascota.Mascota;
 import com.alangomez.gestionveterinariahappyfeet.model.entities.pacientes.mascota.MascotaBuilderImpl;
 import com.alangomez.gestionveterinariahappyfeet.util.EntradaConsola;
+import com.alangomez.gestionveterinariahappyfeet.view.VistaBase;
 import com.alangomez.gestionveterinariahappyfeet.util.TipoTexto;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
-public class VistaMascota {
+public class VistaMascota extends VistaBase {
 
     private static final String FORMATO_FILA = "%-5s %-20s %-25s %-12s %-25s%n";
-    private static final String FORMATO_OPCION = "%-5s %s%n";
-    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public int menuMascotas(){
         System.out.println("""
@@ -41,15 +38,7 @@ public class VistaMascota {
         return EntradaConsola.ingresarEnteroEnRango("Ingrese una opción", 0, 9);
     }
 
-    public void mostrarOpciones(String titulo, Map<Integer, String> opciones){
-        System.out.println("\n---- " + titulo + " ----");
-        System.out.printf(FORMATO_OPCION, "ID", "NOMBRE");
-        opciones.forEach((id, nombre) -> System.out.printf(FORMATO_OPCION, id, nombre));
-    }
 
-    public int pedirIdOpcion(String titulo){
-        return EntradaConsola.ingresarEntero("Seleccione el ID de " + titulo);
-    }
 
     public int pedirId(String accion){
         return EntradaConsola.ingresarEntero("Ingrese el id de la mascota a " + accion);
@@ -234,18 +223,12 @@ public class VistaMascota {
     public void mostrarHistorialDuenios(List<HistorialDuenio> historial, Map<Integer, String> duenios){
         System.out.println("\n---- Historial de dueños ----");
         historial.forEach(h -> System.out.println("- " + duenios.getOrDefault(h.getDuenioId(), "-")
-                + " | Desde: " + formatearFechaHora(h.getFechaInicio())
-                + " | Hasta: " + (h.esDuenioActual() ? "Actual" : formatearFechaHora(h.getFechaFin()))
+                + " | Desde: " + formatearFecha(h.getFechaInicio().toLocalDate())
+                + " | Hasta: " + (h.esDuenioActual() ? "Actual" : formatearFecha(h.getFechaFin().toLocalDate()))
                 + " | Motivo: " + valorOGuion(h.getMotivo())));
     }
 
-    public void mostrarMensaje(String mensaje){
-        System.out.println(mensaje);
-    }
 
-    public void mostrarError(String mensaje){
-        System.out.println("Error: " + mensaje);
-    }
 
     private String describirEdad(Mascota mascota){
         if (mascota.getFechaNacimiento() != null){
@@ -255,15 +238,6 @@ public class VistaMascota {
         return mascota.getEdadEstimada() + " años (estimada)";
     }
 
-    private String formatearFecha(LocalDate fecha){
-        return fecha == null ? "-" : fecha.format(FORMATO_FECHA);
-    }
 
-    private String formatearFechaHora(LocalDateTime fecha){
-        return fecha == null ? "-" : fecha.toLocalDate().format(FORMATO_FECHA);
-    }
 
-    private String valorOGuion(String valor){
-        return valor == null || valor.isBlank() ? "-" : valor;
-    }
 }

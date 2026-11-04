@@ -2,6 +2,7 @@ package com.alangomez.gestionveterinariahappyfeet.util;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import java.util.Scanner;
@@ -107,6 +108,40 @@ public class EntradaConsola {
             } catch (DateTimeParseException e) {
                 System.out.println("Error: La fecha debe tener el formato AAAA-MM-DD y ser válida");
             }
+        }
+    }
+
+    // Validación para ingresar números decimales dentro de un rango (por ejemplo, la temperatura)
+    public static double ingresarDecimalEnRango(String mensaje, double minimo, double maximo){
+        while(true){
+            double num = ingresarDecimal(mensaje);
+            if (num >= minimo && num <= maximo){
+                return num;
+            }
+            System.out.printf("Error: El número debe estar entre %.1f y %.1f%n", minimo, maximo);
+        }
+    }
+
+    // Validación para ingresar una hora con formato HH:MM
+    public static LocalTime ingresarHora(String mensaje){
+        while(true){
+            String texto = ingresarTexto(TipoTexto.HORA, mensaje + " (HH:MM)");
+            try {
+                return LocalTime.parse(texto);
+            } catch (DateTimeParseException e) {
+                System.out.println("Error: La hora debe tener el formato HH:MM, por ejemplo 14:30");
+            }
+        }
+    }
+
+    // Validación para fechas que no pueden ser pasadas (citas, próximos controles)
+    public static LocalDate ingresarFechaNoPasada(String mensaje){
+        while(true){
+            LocalDate fecha = ingresarFecha(mensaje);
+            if (!fecha.isBefore(LocalDate.now())){
+                return fecha;
+            }
+            System.out.println("Error: La fecha no puede ser anterior a hoy");
         }
     }
 

@@ -2,16 +2,17 @@ package com.alangomez.gestionveterinariahappyfeet.controller.pacientes;
 
 import com.alangomez.gestionveterinariahappyfeet.model.entities.pacientes.Duenio;
 import com.alangomez.gestionveterinariahappyfeet.service.pacientes.DuenioService;
-import com.alangomez.gestionveterinariahappyfeet.util.RegistroErrores;
-import com.alangomez.gestionveterinariahappyfeet.view.VistaDuenios;
+import com.alangomez.gestionveterinariahappyfeet.controller.ControladorBase;
+import com.alangomez.gestionveterinariahappyfeet.view.pacientes.VistaDuenios;
 import java.sql.SQLException;
 
-public class DuenioControlador {
+public class DuenioControlador extends ControladorBase {
 
     private final VistaDuenios vista;
     private final DuenioService duenioService;
 
     public DuenioControlador(VistaDuenios vista, DuenioService duenioService) {
+        super(vista);
         this.vista = vista;
         this.duenioService = duenioService;
     }
@@ -31,8 +32,7 @@ public class DuenioControlador {
             } catch (IllegalArgumentException e) {
                 vista.mostrarError(e.getMessage());
             } catch (SQLException e) {
-                RegistroErrores.registrar("Menú de dueños, opción " + opcion, e);
-                vista.mostrarError("Ocurrió un problema con la base de datos. Revise el archivo errores.log");
+                manejarErrorBaseDatos("Menú de dueños, opción " + opcion, e);
             }
         } while (opcion != 0);
     }

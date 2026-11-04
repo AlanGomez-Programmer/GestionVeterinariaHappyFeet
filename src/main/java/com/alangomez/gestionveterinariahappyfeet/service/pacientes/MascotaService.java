@@ -79,6 +79,10 @@ public class MascotaService {
         return mascotaDAO.listarMascotasActivas();
     }
 
+    public List<Mascota> listarTodas() throws SQLException {
+        return mascotaDAO.listarMascotas();
+    }
+
     public Mascota buscarPorId(int id) throws SQLException {
         Mascota mascota = mascotaDAO.buscarMascota(id);
         if (mascota == null) {

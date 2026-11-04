@@ -76,6 +76,21 @@ public class MascotaDAO extends OperacionesDAO{
         }
     }
 
+    public List<Mascota> listarMascotas() throws SQLException{
+        String sql = "SELECT * FROM mascotas ORDER BY nombre";
+        List<Mascota> lista = new ArrayList<>();
+        try (
+                Connection con = obtenerConexion();
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery();
+            ){
+            while(rs.next()){
+                lista.add(mapear(rs));
+            }
+            return lista;
+        }
+    }
+
     public Mascota buscarMascota(int id) throws SQLException{
         String sql = "SELECT * FROM mascotas WHERE id = ?";
         try (
@@ -125,11 +140,14 @@ public class MascotaDAO extends OperacionesDAO{
     }
 
     public boolean actualizarPeso(int id, double peso) throws SQLException{
+        try (Connection con = obtenerConexion()){
+            return actualizarPeso(con, id, peso);
+        }
+    }
+
+    public boolean actualizarPeso(Connection con, int id, double peso) throws SQLException{
         String sql = "UPDATE mascotas SET peso_actual = ? WHERE id = ?";
-        try (
-                Connection con = obtenerConexion();
-                PreparedStatement ps = con.prepareStatement(sql);
-            ){
+        try (PreparedStatement ps = con.prepareStatement(sql)){
             ps.setDouble(1, peso);
             ps.setInt(2, id);
             return ps.executeUpdate() == 1;
