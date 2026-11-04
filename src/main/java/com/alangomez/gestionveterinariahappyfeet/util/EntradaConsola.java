@@ -29,6 +29,17 @@ public class EntradaConsola {
             }
         }
     }
+
+    public static String ingresarCadenaNumeros(String mensaje){
+        while (true){
+           try {
+                String documentoPersonal = ingresarTexto(TipoTexto.DOCUMENTO_PERSONAL, mensaje);
+                return documentoPersonal;
+            } catch (NumberFormatException e){
+           System.out.println("Solo se aceptan valores numericos");
+                }
+        }
+    }
     
     // Validación para ingresar números enteros mayores a 0
     public static int ingresarEntero(String mensaje){
@@ -62,6 +73,31 @@ public class EntradaConsola {
         }
     }
     
+    
+    // Validación para ingresar números decimales
+    public static double ingresarDecimal(String mensaje){
+        while(true){
+            String texto = ingresarTexto(TipoTexto.ALFANUMERICO, mensaje);
+            try {
+                double num = Double.parseDouble(texto);
+                return num;
+            } catch (NumberFormatException e){
+                System.out.println("Error: Debe ingresar un número decimal válido");
+            }
+        }
+    }
+
+    // Validación para ingresar números decimales mayores a 0 (por ejemplo, el peso)
+    public static double ingresarDecimalPositivo(String mensaje){
+        while(true){
+            double num = ingresarDecimal(mensaje);
+            if (num > 0){
+                return num;
+            }
+            System.out.println("Error: El número debe ser mayor a 0");
+        }
+    }
+    
     // Validación para ingresar fechas con formato AAAA-MM-DD
     public static LocalDate ingresarFecha(String mensaje){
         while(true){
@@ -73,15 +109,26 @@ public class EntradaConsola {
             }
         }
     }
+
+    // Validación para fechas que no pueden ser futuras (nacimientos, historiales)
+    public static LocalDate ingresarFechaNoFutura(String mensaje){
+        while(true){
+            LocalDate fecha = ingresarFecha(mensaje);
+            if (!fecha.isAfter(LocalDate.now())){
+                return fecha;
+            }
+            System.out.println("Error: La fecha no puede ser futura");
+        }
+    }
     
-    // Validación para ingresar fecha y hora con formato 
+    // Validación para ingresar fecha y hora con formato AAAA-MM-DDTHH:MM
     public static LocalDateTime ingresarFechaHora(String mensaje){
         while(true){
-            String texto = ingresarTexto(TipoTexto.ALFANUMERICO, mensaje);
+            String texto = ingresarTexto(TipoTexto.ALFANUMERICO, mensaje + " (AAAA-MM-DDTHH:MM)");
             try {
                 return LocalDateTime.parse(texto);
-            } catch (Exception e) {
-                
+            } catch (DateTimeParseException e) {
+                System.out.println("Error: La fecha y hora deben tener el formato AAAA-MM-DDTHH:MM, por ejemplo 2026-11-05T14:30");
             }
         }
     }
