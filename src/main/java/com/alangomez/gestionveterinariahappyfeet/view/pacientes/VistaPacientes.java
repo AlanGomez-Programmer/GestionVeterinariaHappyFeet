@@ -1,8 +1,9 @@
-package com.alangomez.gestionveterinariahappyfeet.view;
+package com.alangomez.gestionveterinariahappyfeet.view.pacientes;
 
 import com.alangomez.gestionveterinariahappyfeet.util.EntradaConsola;
+import com.alangomez.gestionveterinariahappyfeet.view.VistaBase;
 
-public class VistaPacientes {
+public class VistaPacientes extends VistaBase {
 
     public int menuPacientes(){
         System.out.println("""

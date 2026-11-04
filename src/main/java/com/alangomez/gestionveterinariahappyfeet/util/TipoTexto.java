@@ -23,6 +23,11 @@ public enum TipoTexto {
             "\\d+",
             "Solo se permiten numeros"
     ),
+    // Formato de hora: HH:MM
+    HORA(
+            "^\\d{2}:\\d{2}$",
+            "La hora debe tener el formato HH:MM"
+    ),
     // Formato de enlace web: http://... o https://...
     URL(
             "^https?://\\S+$",

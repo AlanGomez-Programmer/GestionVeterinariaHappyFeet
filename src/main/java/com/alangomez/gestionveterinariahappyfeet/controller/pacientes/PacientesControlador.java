@@ -1,6 +1,6 @@
 package com.alangomez.gestionveterinariahappyfeet.controller.pacientes;
 
-import com.alangomez.gestionveterinariahappyfeet.view.VistaPacientes;
+import com.alangomez.gestionveterinariahappyfeet.view.pacientes.VistaPacientes;
 
 public class PacientesControlador {
 

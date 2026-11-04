@@ -13,17 +13,14 @@ import com.alangomez.gestionveterinariahappyfeet.model.entities.servicios.TipoPr
 import com.alangomez.gestionveterinariahappyfeet.service.pacientes.CatalogoPacientesService;
 import com.alangomez.gestionveterinariahappyfeet.service.pacientes.DuenioService;
 import com.alangomez.gestionveterinariahappyfeet.service.pacientes.MascotaService;
-import com.alangomez.gestionveterinariahappyfeet.util.RegistroErrores;
-import com.alangomez.gestionveterinariahappyfeet.view.VistaMascota;
+import com.alangomez.gestionveterinariahappyfeet.controller.ControladorBase;
+import com.alangomez.gestionveterinariahappyfeet.view.pacientes.VistaMascota;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-public class MascotaControlador {
+public class MascotaControlador extends ControladorBase {
 
     private final VistaMascota vista;
     private final MascotaService mascotaService;
@@ -32,6 +29,7 @@ public class MascotaControlador {
 
     public MascotaControlador(VistaMascota vista, MascotaService mascotaService,
             DuenioService duenioService, CatalogoPacientesService catalogoService){
+        super(vista);
         this.vista = vista;
         this.mascotaService = mascotaService;
         this.duenioService = duenioService;
@@ -58,8 +56,7 @@ public class MascotaControlador {
             } catch (IllegalArgumentException e) {
                 vista.mostrarError(e.getMessage());
             } catch (SQLException e) {
-                RegistroErrores.registrar("Menú de mascotas, opción " + opcion, e);
-                vista.mostrarError("Ocurrió un problema con la base de datos. Revise el archivo errores.log");
+                manejarErrorBaseDatos("Menú de mascotas, opción " + opcion, e);
             }
         } while (opcion != 0);
     }
@@ -180,16 +177,6 @@ public class MascotaControlador {
         }
     }
 
-    private int elegir(String titulo, Map<Integer, String> opciones){
-        vista.mostrarOpciones(titulo, opciones);
-        while (true){
-            int id = vista.pedirIdOpcion(titulo);
-            if (opciones.containsKey(id)){
-                return id;
-            }
-            vista.mostrarError("El ID " + id + " no está en la lista");
-        }
-    }
 
     private Map<Integer, String> nombresAlergias() throws SQLException{
         Map<Integer, String> tipos = aMapa(catalogoService.listarTiposAlergias(), TipoAlergia::getId, TipoAlergia::getNombre);
@@ -197,8 +184,4 @@ public class MascotaControlador {
                 c -> c.getNombre() + " (" + tipos.getOrDefault(c.getTipoAlergiaId(), "-") + ")");
     }
 
-    private <T> Map<Integer, String> aMapa(List<T> lista, Function<T, Integer> id, Function<T, String> nombre){
-        return lista.stream()
-                .collect(Collectors.toMap(id, nombre, (primero, segundo) -> primero, LinkedHashMap::new));
-    }
 }
