@@ -1,6 +1,7 @@
 package com.alangomez.gestionveterinariahappyfeet;
 
 import com.alangomez.gestionveterinariahappyfeet.controller.PrincipalControlador;
+import com.alangomez.gestionveterinariahappyfeet.controller.facturas.FacturaControlador;
 import com.alangomez.gestionveterinariahappyfeet.controller.inventario.ExistenciaControlador;
 import com.alangomez.gestionveterinariahappyfeet.controller.inventario.InventarioControlador;
 import com.alangomez.gestionveterinariahappyfeet.controller.inventario.ProductoControlador;
@@ -30,6 +31,7 @@ import com.alangomez.gestionveterinariahappyfeet.controller.servicios.ConsultaCo
 import com.alangomez.gestionveterinariahappyfeet.controller.servicios.ProcedimientoControlador;
 import com.alangomez.gestionveterinariahappyfeet.controller.servicios.ServiciosControlador;
 import com.alangomez.gestionveterinariahappyfeet.controller.servicios.VeterinarioControlador;
+import com.alangomez.gestionveterinariahappyfeet.model.dao.facturas.FacturaDAO;
 import com.alangomez.gestionveterinariahappyfeet.model.dao.inventario.TipoVacunaDAO;
 import com.alangomez.gestionveterinariahappyfeet.model.dao.pacientes.AlergiaDAO;
 import com.alangomez.gestionveterinariahappyfeet.model.dao.pacientes.CatalogoAlergiaDAO;
@@ -53,6 +55,7 @@ import com.alangomez.gestionveterinariahappyfeet.model.dao.servicios.Procedimien
 import com.alangomez.gestionveterinariahappyfeet.model.dao.servicios.ServicioDAO;
 import com.alangomez.gestionveterinariahappyfeet.model.dao.servicios.TipoProcedimientoEspecialDAO;
 import com.alangomez.gestionveterinariahappyfeet.model.dao.servicios.VeterinarioDAO;
+import com.alangomez.gestionveterinariahappyfeet.service.facturas.FacturaService;
 import com.alangomez.gestionveterinariahappyfeet.service.pacientes.CatalogoPacientesService;
 import com.alangomez.gestionveterinariahappyfeet.service.pacientes.DuenioService;
 import com.alangomez.gestionveterinariahappyfeet.service.pacientes.MascotaService;
@@ -62,6 +65,7 @@ import com.alangomez.gestionveterinariahappyfeet.service.servicios.ConsultaServi
 import com.alangomez.gestionveterinariahappyfeet.service.servicios.ProcedimientoService;
 import com.alangomez.gestionveterinariahappyfeet.service.servicios.VeterinarioService;
 import com.alangomez.gestionveterinariahappyfeet.view.VistaPrincipal;
+import com.alangomez.gestionveterinariahappyfeet.view.facturas.VistaFacturas;
 import com.alangomez.gestionveterinariahappyfeet.view.pacientes.VistaDuenios;
 import com.alangomez.gestionveterinariahappyfeet.view.pacientes.VistaMascota;
 import com.alangomez.gestionveterinariahappyfeet.view.pacientes.VistaPacientes;
@@ -74,7 +78,7 @@ import com.alangomez.gestionveterinariahappyfeet.view.servicios.VistaVeterinario
 public class Main {
 
     public static void main(String[] args) {
-        // ---------- DAO ----------
+        //  DAO 
         DuenioDAO duenioDAO = new DuenioDAO();
         MascotaDAO mascotaDAO = new MascotaDAO();
         VeterinarioDAO veterinarioDAO = new VeterinarioDAO();
@@ -86,8 +90,9 @@ public class Main {
         PrescripcionProcedimientoDAO prescripcionDAO = new PrescripcionProcedimientoDAO();
         CatalogoProcedimientoDAO catalogoProcedimientoDAO = new CatalogoProcedimientoDAO();
         TipoProcedimientoEspecialDAO tipoProcedimientoDAO = new TipoProcedimientoEspecialDAO();
+        FacturaDAO facturaDAO = new FacturaDAO();
 
-        // ---------- Módulo 1: Pacientes ----------
+        //  Módulo 1: Pacientes 
         DuenioService duenioService = new DuenioService(duenioDAO, mascotaDAO);
         MascotaService mascotaService = new MascotaService(
                 mascotaDAO,
@@ -113,7 +118,7 @@ public class Main {
         PacientesControlador pacientesControlador = new PacientesControlador(
                 new VistaPacientes(), duenioControlador, mascotaControlador);
 
-        // ---------- Módulo 3: Inventario y farmacia ----------
+        //  Módulo 3: Inventario y farmacia 
         ProductoDAO productoDAO = new ProductoDAO();
         TipoProductoDAO tipoProductoDAO = new TipoProductoDAO();
         ProductoService productoService = new ProductoService(productoDAO, new DetalleProductoDAO(), tipoProductoDAO);
@@ -134,7 +139,7 @@ public class Main {
                 new ExistenciaControlador(vistaExistencias, inventarioService, productoService)
         );
 
-        // ---------- Módulo 2: Servicios médicos y citas ----------
+        //  Módulo 2: Servicios médicos y citas 
         InsumoDAO insumoDAO = new InsumoDAO();
         CatalogoServiciosService catalogoServiciosService = new CatalogoServiciosService(
                 new EspecialidadDAO(), estadoDAO, servicioDAO, catalogoProcedimientoDAO, tipoProcedimientoDAO);
@@ -158,7 +163,13 @@ public class Main {
                         veterinarioService, catalogoServiciosService, productoService, inventarioService)
         );
 
+        
+        // Modulo 4: Facturación
+        FacturaService facturaService = new FacturaService(facturaDAO, duenioService);
+        FacturaControlador facturaControlador = new FacturaControlador(new VistaFacturas(), facturaService);
+        
+        // Main
         new PrincipalControlador(new VistaPrincipal(), pacientesControlador, serviciosControlador,
-                inventarioControlador).iniciar();
+                inventarioControlador, facturaControlador).iniciar();
     }
 }
