@@ -13,8 +13,9 @@ public class VistaPrincipal extends VistaBase {
                 1. Gestión de Pacientes
                 2. Servicios Médicos y Citas
                 3. Inventario y Farmacia
+                4. Facturación
                 0. Salir
             """);
-        return EntradaConsola.ingresarEnteroEnRango("Ingrese una opción", 0, 3);
+        return EntradaConsola.ingresarEnteroEnRango("Ingrese una opción", 0, 4);
     }
 }

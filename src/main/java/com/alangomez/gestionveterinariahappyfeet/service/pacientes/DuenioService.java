@@ -45,6 +45,14 @@ public class DuenioService {
         return duenio;
     }
 
+    public Duenio buscarPorDocumento(String documento) throws SQLException {
+        Duenio duenio = duenioDAO.buscarPorDocumento(documento);
+        if (duenio == null) {
+            throw new IllegalArgumentException("No se encontró ningún dueño con el documento proporcionado");
+        }
+        return duenio;
+    }
+
     public void desactivar(int id) throws SQLException {
         Duenio duenio = buscarPorId(id);
         if (!duenio.isActivo()) {
@@ -57,4 +65,4 @@ public class DuenioService {
         }
         duenioDAO.desactivarDuenio(id);
     }
-}
+}
