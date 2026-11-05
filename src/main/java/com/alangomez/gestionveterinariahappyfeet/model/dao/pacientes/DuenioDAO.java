@@ -60,6 +60,19 @@ public class DuenioDAO extends OperacionesDAO {
         }
     }
 
+    public Duenio buscarPorDocumento(String documento) throws SQLException {
+        String sql = "SELECT * FROM duenios WHERE documento_identidad = ?";
+
+        try (Connection con = obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, documento);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? mapear(rs) : null;
+            }
+        }
+    }
+
     public boolean desactivarDuenio(int id) throws SQLException {
         String sql = "UPDATE duenios SET activo = FALSE WHERE id = ?";
 
@@ -112,4 +125,4 @@ public class DuenioDAO extends OperacionesDAO {
                 rs.getBoolean("activo")
         );
     }
-}
+}
