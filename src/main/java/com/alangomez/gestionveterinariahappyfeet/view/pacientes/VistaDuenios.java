@@ -31,7 +31,7 @@ public class VistaDuenios extends VistaBase {
                 Registrar Dueño
             ==============================
             """);
-        String nombre = EntradaConsola.ingresarTexto(TipoTexto.ALFANUMERICO, "Nombre completo");
+        String nombre = EntradaConsola.ingresarTexto(TipoTexto.SOLO_LETRAS, "Nombre completo");
         String documentoIdentidad = EntradaConsola.ingresarCadenaNumeros("Documento Personal");
         String direccion = null;
         if (EntradaConsola.confirmar("Desea agregar una dirección")) {
@@ -70,4 +70,4 @@ public class VistaDuenios extends VistaBase {
     }
 
 
-}
+}

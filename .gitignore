@@ -108,6 +108,7 @@ $RECYCLE.BIN/
 ## Workbench - Diagram
 diagrama.mwb
 diagrama.mwb.bak
+Ejemplo.sql
 
 db.properties
 # End of https://www.toptal.com/developers/gitignore/api/maven,java,netbeans,windows,visualstudiocode
